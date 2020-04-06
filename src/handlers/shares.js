@@ -1,4 +1,4 @@
-import {SpotifyUri}  from 'spotify-uri'
+import { parse }  from 'spotify-uri'
 
 export default (bot, db) => {
     bot.on('text', (ctx) => {
@@ -8,14 +8,14 @@ export default (bot, db) => {
         const username = from.username
 
         const urls = (entities || []).filter(entity => entity.type === 'url')
-            .map(entity => text.slice(entity.offset + 1, entity.offset + entity.length))
+            .map(entity => text.slice(entity.offset, entity.offset + entity.length))
 
         console.log(urls)
         console.log(username)
 
         const parsedUrls = urls.map(url => {
             try {
-                return SpotifyUri.parse(urls)
+                return parse(url)
             } catch (error) {
                 console.log(error)
             }
