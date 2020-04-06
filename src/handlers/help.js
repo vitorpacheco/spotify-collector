@@ -1,4 +1,4 @@
-import {Composer} from 'telegraf'
+import { Composer } from 'telegraf'
 
 const start = `Hi, I was made to help you keep track of songs that are sent to your group by sending them to a channel. To learn my commands, send /help and for a step-by-step guide on how to set me up, send /setup.`
 
@@ -17,11 +17,11 @@ const setup = `
 `
 
 const extra = {
-    parse_mode: `html`,
+  parse_mode: `html`,
 }
 
 export default bot => {
-    bot.start(Composer.privateChat(Composer.reply(start)))
-    bot.help(Composer.privateChat(Composer.reply(help, extra)))
-    bot.command('setup', Composer.privateChat(Composer.reply(setup, extra)))
+  bot.start(Composer.privateChat(Composer.reply(start)))
+  bot.help(Composer.privateChat(Composer.reply(help, extra)))
+  bot.command('setup', Composer.privateChat(Composer.reply(setup, extra)))
 }

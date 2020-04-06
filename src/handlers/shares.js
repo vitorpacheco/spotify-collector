@@ -1,80 +1,98 @@
-import { parse }  from 'spotify-uri'
+import { parse } from 'spotify-uri'
+import { default as SpotifyWebApi } from 'spotify-web-api-node'
 
-export default (bot, db) => {
-    bot.on('text', (ctx) => {
-        console.log(ctx.message)
+const spotifyApi = new SpotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+})
 
-        const { text, entities, from } = ctx.message
-        const username = from.username
+const saveItem = async (db, username, url, body) => {
+  db.sharedItems.findOne({ trackId: url.id, username: username }, async (err, item) => {
+    if (err) return console.error(err);
 
-        const urls = (entities || []).filter(entity => entity.type === 'url')
-            .map(entity => text.slice(entity.offset, entity.offset + entity.length))
+    if (item) return
 
-        console.log(urls)
-        console.log(username)
+    const newItem = {
+      username: username,
+      trackId: url.id,
+      type: url.type,
+      name: body.name,
+      uri: body.uri,
+      popuplarity: body.popuplarity,
+      explicit: body.explicit,
+      href: body.href,
+      external_ids: body.external_ids,
+      external_urls: body.external_urls
+    };
 
-        const parsedUrls = urls.map(url => {
-            try {
-                return parse(url)
-            } catch (error) {
-                console.log(error)
-            }
-            
-        })
+    db.sharedItems.insert(newItem)
+  })
+}
 
-        console.log(parsedUrls)
+export default async (bot, db) => {
+  await spotifyApi.clientCredentialsGrant().then((data) => {
+    console.log('The access token expires in ' + data.body['expires_in']);
+    console.log('The access token is ' + data.body['access_token']);
 
-        if (ctx.message.entities !== undefined) {
-            // const urlEntities = ctx.message.entities.filter(entity => {
-            //     if (entity.type === 'url') {
-            //         return entity
-            //     }
-            // });
+    spotifyApi.setAccessToken(data.body['access_token']);
+  },
+    (err) => {
+      console.error('Something went wrong when retrieving an access token', err);
+    }
+  );
 
-            
+  bot.on('text', async (ctx) => {
+    const { text, entities, from } = ctx.message
+    const username = from.username
 
-            // urlEntities.forEach(async entity => {
-            //     console.log(entity)
+    const urls = (entities || []).filter(entity => entity.type === 'url')
+      .map(entity => text.slice(entity.offset, entity.offset + entity.length))
 
-            //     const url = text.substring(entity.offset, entity.length)
-
-            //     console.log(url)
-
-            //     try {
-            //         const parsed = SpotifyUri.parse(url)
-                 
-            //         console.log(parsed);
-
-            //         if (parsed.type !== 'track') {
-            //             return
-            //         }
-
-            //         await spotifyApi.getUserPlaylists('vitorpacheco')
-            //             .then((data) => {
-            //                 console.log('Found playlists are', data.body)
-            //             }, (err) => {
-            //                 console.log('Something went wrong!', err)  
-            //             })
-
-            //         // await spotifyApi.createPlaylist('MTH - ' + username, { public: true })
-            //         //     .then((data) => {
-            //         //         console.log('Created playlist!', data.body);
-            //         //     }, (err) => {
-            //         //         console.log('Something went wrong!', err);
-            //         //     })
-
-            //         // await spotifyApi.addTracksToPlaylist(playlistId, ['spotify:track:' + parsed.id])
-            //         //     .then((data) => {
-            //         //         console.log('Added tracks to playlist!');
-            //         //     }, (err) => {
-            //         //         console.log('Something went wrong!', err);
-            //         //     });
-            //     } catch (err) {
-            //         console.log('Failed to parse track url', err)
-            //     }
-            // })
-
-            // ctx.reply('Hello World')
-        }
+    const parsedUrls = urls.map(url => {
+      try {
+        return parse(url)
+      } catch (error) {
+        console.error(error)
+      }
     })
+
+    parsedUrls.filter(url => url.type === 'track').map(url => {
+      spotifyApi.getTrack(url.id)
+        .then((data) => {
+          return data.body
+        }, (err) => {
+          console.error('Something went wrong!', err);
+        }).then(body => {
+          if (body.is_local) return
+
+          saveItem(db, username, url, body)
+        })
+    })
+
+    parsedUrls.filter(url => url.type === 'artist').map(url => {
+      spotifyApi.getArtist(url.id)
+        .then((data) => {
+          return data.body
+        }, (err) => {
+          console.error('Something went wrong!', err);
+        }).then(body => {
+          if (body.is_local) return
+
+          saveItem(db, username, url, body)
+        })
+    })
+
+    parsedUrls.filter(url => url.type === 'album').map(url => {
+      spotifyApi.getAlbum(url.id)
+        .then((data) => {
+          return data.body
+        }, (err) => {
+          console.error('Something went wrong!', err);
+        }).then(body => {
+          if (body.is_local) return
+
+          saveItem(db, username, url, body)
+        })
+    })
+  })
 }
