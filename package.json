@@ -5,6 +5,9 @@
   "main": "index.js",
   "author": "Vitor Pacheco <vpacheco.costa@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": "13.x"
+  },
   "dependencies": {
     "dotenv": "^8.2.0",
     "telegraf": "^3.37.0"
