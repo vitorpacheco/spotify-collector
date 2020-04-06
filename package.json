@@ -1,0 +1,20 @@
+{
+  "name": "spotify-collector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "Vitor Pacheco <vpacheco.costa@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "telegraf": "^3.37.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0"
+  },
+  "repository": "git@github.com:vitorpacheco/spotify-collector.git"
+}
