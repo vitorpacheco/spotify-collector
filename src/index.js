@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 import * as path from 'path'
 import NeDB from 'nedb'
 import { Telegraf } from 'telegraf'
+import express from 'express'
 
 import handlers from './handlers'
 
@@ -30,3 +31,13 @@ bot.use(async (ctx, next) => {
 handlers(bot, db, process.env);
 
 bot.launch()
+
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Spotify Collector Telegram Bot')
+})
+
+app.listen(process.env.PORT, () => {
+  console.log(`app listening at ${process.env.PORT}`)
+})
