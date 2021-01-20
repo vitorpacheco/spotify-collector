@@ -1,10 +1,6 @@
 import { parse } from 'spotify-uri'
 import { default as SpotifyWebApi } from 'spotify-web-api-node'
 
-const spotifyApi = new SpotifyWebApi({
-  clientId: process.env.SPOTIFY_CLIENT_ID,
-  clientSecret: process.env.SPOTIFY_CLIENT_SECRET
-})
 
 const saveItem = async (db, username, url, body) => {
   db.sharedItems.findOne({ trackId: url.id, username: username }, async (err, item) => {
@@ -29,7 +25,12 @@ const saveItem = async (db, username, url, body) => {
   })
 }
 
-export default async (bot, db) => {
+export default async (bot, db, env) => {
+  const spotifyApi = new SpotifyWebApi({
+    clientId: env.SPOTIFY_CLIENT_ID,
+    clientSecret: env.SPOTIFY_CLIENT_SECRET
+  })
+
   await spotifyApi.clientCredentialsGrant().then((data) => {
     console.log('The access token expires in ' + data.body['expires_in']);
     console.log('The access token is ' + data.body['access_token']);

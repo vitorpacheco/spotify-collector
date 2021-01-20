@@ -11,9 +11,9 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "nedb": "^1.8.0",
-    "spotify-uri": "^2.0.0",
-    "spotify-web-api-node": "^4.0.0",
-    "telegraf": "^3.37.0"
+    "spotify-uri": "^2.1.0",
+    "spotify-web-api-node": "^5.0.0",
+    "telegraf": "^4.0.1"
   },
   "scripts": {
     "build": "./node_modules/.bin/babel src --out-dir public",

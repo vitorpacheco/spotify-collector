@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import * as path from 'path'
 import NeDB from 'nedb'
-import Telegraf from 'telegraf'
+import { Telegraf } from 'telegraf'
 
 import handlers from './handlers'
 
@@ -18,11 +18,15 @@ const db = {
 
 bot.catch(console.error)
 
-bot.use((ctx, next) => {
+bot.use(async (ctx, next) => {
+  const start = new Date()
   console.log(ctx.from)
-  next()
+  await next()
+
+  const ms = new Date() - start
+  console.log('Response time: %sms', ms)
 })
 
-handlers(bot, db);
+handlers(bot, db, process.env);
 
 bot.launch()
