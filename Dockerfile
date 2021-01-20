@@ -13,4 +13,4 @@ COPY . .
 
 RUN yarn babel src --out-dir dist
 
-CMD [ "node", "dist/index.js" ]
+CMD [ "node", "public/index.js" ]

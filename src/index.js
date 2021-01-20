@@ -19,13 +19,9 @@ const db = {
 
 bot.catch(console.error)
 
-bot.use(async (ctx, next) => {
-  const start = new Date()
+bot.use((ctx, next) => {
   console.log(ctx.from)
-  await next()
-
-  const ms = new Date() - start
-  console.log('Response time: %sms', ms)
+   next()
 })
 
 handlers(bot, db, process.env);
