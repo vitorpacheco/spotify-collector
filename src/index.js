@@ -30,10 +30,19 @@ bot.launch()
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.send('Spotify Collector Telegram Bot')
+app.set('port', process.env.PORT || 3000)
+
+app.get('/api', (req, res) => {
+  res.setHeader('Content-type', 'text/html')
+  res.setHeader('Cache-control', 's-max-age=1, stale-while-revalidate')
+  res.end('Spotify Collector Telegram Bot')
 })
 
-app.listen(process.env.PORT, () => {
-  console.log(`app listening at ${process.env.PORT}`)
+app.get('/api/item/:slug', (req, res) => {
+  const { slug } = req.params
+  res.end(`Item: ${slug}`)
+})
+
+app.listen(app.get('port'), () => {
+  console.log(`app listening at ${app.get('port')}`)
 })
