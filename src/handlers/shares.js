@@ -1,31 +1,31 @@
 import { parse } from 'spotify-uri'
 import { default as SpotifyWebApi } from 'spotify-web-api-node'
+import { v4 as uuidv4 } from 'uuid'
+import { saveItem, getItemByTrackId } from '../services/itemsService'
 
+const persistItem = async (username, url, body) => {
+  const item = await getItemByTrackId(url.id)
 
-const saveItem = async (db, username, url, body) => {
-  db.sharedItems.findOne({ trackId: url.id, username: username }, async (err, item) => {
-    if (err) return console.error(err);
+  if (item) return
 
-    if (item) return
-
-    const newItem = {
-      username: username,
-      trackId: url.id,
-      type: url.type,
-      name: body.name,
-      uri: body.uri,
-      popuplarity: body.popuplarity,
-      explicit: body.explicit,
-      href: body.href,
-      external_ids: body.external_ids,
-      external_urls: body.external_urls
-    };
-
-    db.sharedItems.insert(newItem)
+  const result = await saveItem({
+    id: uuidv4(),
+    username: username,
+    trackId: url.id,
+    type: url.type,
+    name: body.name,
+    uri: body.uri,
+    popuplarity: body.popuplarity,
+    explicit: body.explicit,
+    href: body.href,
+    external_ids: body.external_ids,
+    external_urls: body.external_urls
   })
+
+  return result
 }
 
-export default async (bot, db, env) => {
+export default async (bot, env) => {
   const spotifyApi = new SpotifyWebApi({
     clientId: env.SPOTIFY_CLIENT_ID,
     clientSecret: env.SPOTIFY_CLIENT_SECRET
@@ -66,7 +66,7 @@ export default async (bot, db, env) => {
         }).then(body => {
           if (body.is_local) return
 
-          saveItem(db, username, url, body)
+          persistItem(username, url, body)
         })
     })
 
@@ -79,7 +79,7 @@ export default async (bot, db, env) => {
         }).then(body => {
           if (body.is_local) return
 
-          saveItem(db, username, url, body)
+          persistItem(username, url, body)
         })
     })
 
@@ -92,7 +92,7 @@ export default async (bot, db, env) => {
         }).then(body => {
           if (body.is_local) return
 
-          saveItem(db, username, url, body)
+          persistItem(username, url, body)
         })
     })
   })

@@ -1,7 +1,7 @@
 import help from './help'
 import shares from './shares'
 
-export default (bot, db, env) => {
+export default (bot, env) => {
   help(bot)
-  shares(bot, db, env)
+  shares(bot, env)
 }
